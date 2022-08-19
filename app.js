@@ -18,6 +18,7 @@ mongoose.connect(mongoDB, { useUnifiedTopology: true, useNewUrlParser: true });
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
+const indexRouter = require("./routes/index");
 const apiRouter = require("./routes/api");
 
 var app = express();
@@ -74,23 +75,23 @@ passport.use(
   new JWTstrategy(
     {
       secretOrKey: process.env.SECRET_KEY,
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     },
     async function (token, done) {
       try {
-        return done(null, token.user)
+        return done(null, token.user);
       } catch (err) {
         done(err);
       }
     }
   )
-)
+);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(helmet());
 app.use(compression());
 app.use(cors());
@@ -100,6 +101,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use("/", indexRouter);
 app.use("/api", apiRouter);
 
 // catch 404 and forward to error handler
